@@ -62,6 +62,12 @@ foreach (@in) {
         next;
     }
 
+    ## skip db/dw statements
+    if (/\s+[Dd][BbWw](?!\S)/) {
+        push(@out, "$_\n");
+        next;
+    }
+
     ## save non-full-line comments
     if (/;/) {
         ($_,$csave) = split(/;/,$_);
@@ -77,10 +83,10 @@ foreach (@in) {
     }
 
     ## replace ,m with ,(HL)
-    s/,(\s*)[Mm]/,$1(HL)/;
+    s/,\s*[Mm](\b)/,\(HL\)$1/;
 
     ## replace m,r with (HL,r)
-    s/[Mm](\s*),/(HL)$1,/;
+    s/(\s+)[Mm]\s*,/$1\(HL\),/;
 
     ## ANI
     if (/\s+[Aa][Nn][Ii](?!\S)/) {
@@ -239,7 +245,7 @@ foreach (@in) {
 
     ## CM
     if (/\s+[Cc][Mm](?!\S)/) {
-        s/[Cc][Mm]/CALL PE,/;
+        s/[Cc][Mm]/CALL M,/;
         s/,\s+/,/;
         &pushx();
         next;
